@@ -78,7 +78,7 @@ func (e *ResponseError) Error() string {
 }
 
 // GetParsedBody attempts to unmarshal the JSON response body into the provided value.
-func (r *Response) GetParsedBody(v interface{}) error {
+func (r *Response) GetParsedBody(v any) error {
 	if len(r.Body) == 0 {
 		return fmt.Errorf("response body is empty")
 	}
@@ -162,14 +162,14 @@ func (c *Client) SetSecretKey(secretKey string) *Client {
 // data: The request payload.
 //   - For GET: map[string]string or url.Values for query parameters.
 //   - For POST/PUT/DELETE:
-//   - Any struct or map[string]interface{} will be JSON-encoded.
+//   - Any struct or map[string]any will be JSON-encoded.
 //   - url.Values will be form-urlencoded.
 //   - io.Reader will be streamed directly (Content-Type header should be set manually).
 //   - []byte will be sent directly (Content-Type header should be set manually).
 //   - string will be sent directly (Content-Type header should be set manually).
 //
 // headers: A map of additional headers to send.
-func (c *Client) Request(method, path string, data interface{}, headers map[string]string) (*Response, error) {
+func (c *Client) Request(method, path string, data any, headers map[string]string) (*Response, error) {
 	// 1. Compose URL
 	rel, err := url.Parse(strings.TrimPrefix(c.apiPath, "/") + strings.TrimPrefix(path, "/"))
 	if err != nil {
@@ -248,16 +248,14 @@ func (c *Client) Request(method, path string, data interface{}, headers map[stri
 
 	// Content-Type Header (if detected/defaulted and not overridden by user)
 	userContentTypeSet := false
-	if headers != nil {
-		for k, v := range headers {
-			if strings.ToLower(k) == "content-type" {
-				userContentTypeSet = true
-				// User explicitly set Content-Type, respect it
-				// Note: net/http canonicalizes header keys (e.g., "content-type" -> "Content-Type")
-				req.Header.Set(k, v)
-			} else {
-				req.Header.Set(k, v)
-			}
+	for k, v := range headers {
+		if strings.ToLower(k) == "content-type" {
+			userContentTypeSet = true
+			// User explicitly set Content-Type, respect it
+			// Note: net/http canonicalizes header keys (e.g., "content-type" -> "Content-Type")
+			req.Header.Set(k, v)
+		} else {
+			req.Header.Set(k, v)
 		}
 	}
 
