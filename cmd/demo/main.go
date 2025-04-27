@@ -11,7 +11,7 @@ import (
 func main() {
 	yourEspoURL := "https://your-espo-instance.com" // CHANGE THIS
 	apiKey := "your-api-key"                        // CHANGE THIS
-	secretKey := "your-secret-key"                  // CHANGE THIS (if using HMAC)
+	// secretKey := "your-secret-key"                  // CHANGE THIS (if using HMAC)
 
 	// Create a new client
 	client, err := espoclient.NewClient(yourEspoURL, nil) // Use nil for default port
@@ -22,11 +22,11 @@ func main() {
 	// Set authentication - Choose one method:
 	// client.SetUsernameAndPassword("admin", "password") // Basic Auth (not recommended)
 	client.SetApiKey(apiKey)
-	client.SetSecretKey(secretKey) // Uncomment if using HMAC
+	// client.SetSecretKey(secretKey) // Uncomment if using HMAC
 
 	// --- Example: Create a Lead (POST request) ---
 	fmt.Println("Attempting to create a Lead...")
-	leadData := map[string]interface{}{
+	leadData := map[string]any{
 		"firstName":    "John",
 		"lastName":     "Doe",
 		"emailAddress": "john.doe.test@example.com",
@@ -68,7 +68,7 @@ func main() {
 	// fmt.Printf("  Response Headers: %v\n", resp.Headers) // Uncomment to see headers
 
 	// Attempt to parse the response body as JSON
-	var createdLead map[string]interface{} // Or define a specific struct
+	var createdLead map[string]any // Or define a specific struct
 	parseErr := resp.GetParsedBody(&createdLead)
 	if parseErr != nil {
 		fmt.Printf("  Could not parse JSON response body: %v\n", parseErr)
@@ -100,7 +100,7 @@ func main() {
 			} else {
 				fmt.Printf("Lead Retrieval Successful!\n")
 				fmt.Printf("  Status Code: %d\n", getResp.StatusCode)
-				var retrievedLead map[string]interface{}
+				var retrievedLead map[string]any
 				parseErr := getResp.GetParsedBody(&retrievedLead)
 				if parseErr != nil {
 					fmt.Printf("  Could not parse GET response body: %v\n", parseErr)
